@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+
+
+<div class="add-recipe">
+
+<div class="page-header" style="padding-top:40px;">
+
+<h2>Add a New Recipe</h2>
+
+  </div>
+
+
+
+<form action="{{ url_for('recipes.add_recipe') }}" method="post">
+    {{ form.csrf_token }}
+    {{ form.recipe_title(placeholder="Recipe Title") }}
+    <span class="error">
+      {% if form.recipe_title.errors %}
+        {% for error in form.recipe_title.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+
+    {{ form.recipe_description(placeholder="Recipe Description") }}
+    <span class="error">
+      {% if form.recipe_description.errors %}
+        {% for error in form.recipe_description.errors %}
+          {{ error }}
+        {% endfor %}
+      {% endif %}
+    </span>
+
+    <button class="btn btn-sm btn-success" type="submit">Add Recipe</button>
+  </form>
+
+</div>
+
+
+{% endblock %}
