@@ -36,7 +36,8 @@
             <li><a href="#">Lunch Recipes</a></li>
             <li><a href="#">Dinner Recipes</a></li>
             <li><a href="#">Dessert Recipes</a></li>
-          </ul>
+            <li><a href="{{ url_for('recipes.add_recipe') }}">Add Recipe</a></li>
+            <li><a href="{{ url_for('users.register') }}">Register</a></li>          </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="#">Welcome!</a></li>
           </ul>
@@ -50,7 +51,7 @@
         <!-- flash messages -->
         {% for error_message in get_flashed_messages(category_filter=["error"]) %}
 
-<div class="alert alert-danger alert-dismissible" style="padding-top:60px;">{{ error_message }}</div>
+<div class="alert alert-danger alert-dismissible" style="padding-top:0px;">{{ error_message }}</div>
 
         {% endfor %}
 
