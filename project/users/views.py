@@ -3,7 +3,7 @@
 #################
 
 from flask import render_template, Blueprint, request, redirect, url_for, flash
-from project.users.form import RegisterForm, LoginForm
+from project.users.form import RegisterForm, LoginForm, EmailForm, PasswordForm
 from sqlalchemy.exc import IntegrityError
 from project.models import User
 from project import db, app, mail
@@ -125,3 +125,62 @@ def logout():
     logout_user()
     flash('Goodbye!', 'info')
     return redirect(url_for('users.login'))
+
+def send_password_reset_email(user_email):
+    password_reset_serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+    password_reset_url = url_for(
+        'users.reset_with_token',
+        token = password_reset_serializer.dumps(user_email, salt='password-reset-salt'),
+        _external=True)
+
+    html = render_template(
+        'email_password_reset.html',
+        password_reset_url=password_reset_url)
+
+    send_email('Password Reset Requested', [user_email], html)
+
+@users_blueprint.route('/reset', methods=["GET", "POST"])
+def reset():
+    form = EmailForm()
+    if form.validate_on_submit():
+        try:
+            user = User.query.filter_by(email=form.email.data).first_or_404()
+        except:
+            flash('Invalid email address!', 'error')
+            return render_template('password_reset_email.html', form=form)
+
+        if user.email_confirmed:
+            send_password_reset_email(user.email)
+            flash('Please check your email for a password reset link.', 'success')
+        else:
+            flash('Your email address must be confirmed before attempting a password reset.', 'error')
+        return redirect(url_for('users.login'))
+
+    return render_template('password_reset_email.html', form=form)
+
+@users_blueprint.route('/reset/<token>', methods=["GET", "POST"])
+def reset_with_token(token):
+    try:
+        password_reset_serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        email = password_reset_serializer.loads(token, salt='password-reset-salt', max_age=3600)
+    except:
+        flash('The password reset link is invalid or has expired.', 'error')
+        return redirect(url_for('users.login'))
+
+    form = PasswordForm()
+
+    if form.validate_on_submit():
+        try:
+            user = User.query.filter_by(email=email).first_or_404()
+        except:
+            flash('Invalid email address!', 'error')
+            return redirect(url_for('users.login'))
+
+        user.password = form.password.data
+        db.session.add(user)
+        db.session.commit()
+        flash('Your password has been updated!', 'success')
+        return redirect(url_for('users.login'))
+
+    return render_template('reset_password_with_token.html', form=form, token=token)
