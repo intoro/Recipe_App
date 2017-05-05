@@ -40,7 +40,15 @@
                 <li><a href="{{ url_for('users.register') }}">Register</a></li>
                 <li><a href="{{ url_for('users.login') }}">Log In</a></li>
               {% endif %}
-            </ul>          </div><!--/.nav-collapse -->
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('users.user_profile') }}">{{current_user.email}}</a></li>
+              {% else %}
+                <li><a href="#">Welcome!</a></li>
+              {% endif %}
+            </ul>
+          </div><!--/.nav-collapse -->
       </div><!-- /.container -->
     </nav>
 
