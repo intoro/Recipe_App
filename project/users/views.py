@@ -245,3 +245,14 @@ def user_password_change():
             return redirect(url_for('users.user_profile'))
 
     return render_template('password_change.html', form=form)
+
+
+@users_blueprint.route('/admin_view_users')
+@login_required
+def admin_view_users():
+    if current_user.role != 'admin':
+        abort(403)
+    else:
+        users = User.query.order_by(User.id).all()
+        return render_template('admin_view_users.html', users=users)
+    return redirect(url_for('stocks.watch_list'))
