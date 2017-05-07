@@ -2,7 +2,7 @@
 #### imports ####
 #################
 
-from flask import render_template, Blueprint, request, redirect, url_for, flash
+from flask import render_template, Blueprint, request, redirect, url_for, flash, abort
 from project.users.form import RegisterForm, LoginForm, EmailForm, PasswordForm
 from sqlalchemy.exc import IntegrityError
 from project.models import User
