@@ -7,6 +7,7 @@ from project import db
 
 from project.models import Recipe
 from project.recipes.forms import AddRecipeForm
+from flask_login import login_user, current_user, login_required, logout_user
 
 
 ################
@@ -20,9 +21,16 @@ recipes_blueprint = Blueprint('recipes', __name__)
 ################
 
 @recipes_blueprint.route('/')
-def index():
-    all_recipes = Recipe.query.all()
-    return render_template('recipes.html', recipes=all_recipes)
+def public_recipes():
+    all_public_recipes = Recipe.query.filter_by(is_public=True)
+    return render_template('public_recipes.html', public_recipes=all_public_recipes)
+
+@recipes_blueprint.route('/recipes')
+@login_required
+def user_recipes():
+    all_user_recipes = Recipe.query.filter_by(user_id=current_user.id)
+    return render_template('user_recipes.html', user_recipes=all_user_recipes)
+
 
 def flash_errors(form):
     for field, errors in form.errors.items():
@@ -34,18 +42,18 @@ def flash_errors(form):
 
 
 @recipes_blueprint.route('/add', methods=['GET', 'POST'])
+@login_required
 def add_recipe():
     form = AddRecipeForm(request.form)
     if request.method == 'POST':
         if form.validate_on_submit():
-            new_recipe = Recipe(form.recipe_title.data, form.recipe_description.data)
+            new_recipe = Recipe(form.recipe_title.data, form.recipe_description.data, current_user.id, True)
             db.session.add(new_recipe)
             db.session.commit()
             flash('New recipe, {}, added!'.format(new_recipe.recipe_title), 'success')
-            return redirect(url_for('recipes.index'))
+            return redirect(url_for('recipes.user_recipes'))
         else:
             flash_errors(form)
             flash('ERROR! Recipe was not added.', 'error')
 
-    return render_template('add_recipe.html',
-                           form=form)
+    return render_template('add_recipe.html', form=form)

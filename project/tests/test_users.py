@@ -70,8 +70,8 @@ class UsersTests(unittest.TestCase):
 
     def test_valid_user_registration(self):
         response = self.app.post('/register',
-                                 data=dict(email='patkennedy79@gmail.com', password ='FlaskIsAwesome',
-                                 confirm ='FlaskIsAwesome'), follow_redirects=True)
+        data=dict(email='patkennedy79@gmail.com', password ='FlaskIsAwesome',
+        confirm ='FlaskIsAwesome'), follow_redirects=True)
         self.assertIn(b'Thanks for registering!', response.data)
 
 
