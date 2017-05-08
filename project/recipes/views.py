@@ -5,7 +5,7 @@
 from flask import render_template, Blueprint, request, redirect, url_for, flash
 from project import db
 
-from project.models import Recipe
+from project.models import Recipe, User
 from project.recipes.forms import AddRecipeForm
 from flask_login import login_user, current_user, login_required, logout_user
 
@@ -57,3 +57,19 @@ def add_recipe():
             flash('ERROR! Recipe was not added.', 'error')
 
     return render_template('add_recipe.html', form=form)
+
+
+@recipes_blueprint.route('/recipe/<recipe_id>')
+def recipe_details(recipe_id):
+    recipe_with_user = db.session.query(Recipe, User).join(User).filter(Recipe.id == recipe_id).first()
+    if recipe_with_user is not None:
+        if recipe_with_user.Recipe.is_public:
+            return render_template('recipe_detail.html', recipe=recipe_with_user)
+        else:
+            if current_user.is_authenticated and recipe_with_user.Recipe.user_id == current_user.id:
+                return render_template('recipe_detail.html', recipe=recipe_with_user)
+            else:
+                flash('Error! Incorrect permissions to access this recipe.', 'error')
+    else:
+        flash('Error! Recipe does not exist.', 'error')
+    return redirect(url_for('recipes.public_recipes'))
