@@ -2,26 +2,29 @@
 {% block content %}
 
 <div class="user-profile">
-  <div class="page-header">
-    <h2>Public Recipes</h2>
-  </div>
+  <div class="container">
+    <div class="jumbotron">
+      <h1>Recipes</h1>
+      <p>Our Favorite Recipes!</p>
+    </div>
 
-  <table class="table table-striped" id="owned_stock_table">
-    <thead>
-      <tr>
-        <th>Title</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for recipe in public_recipes %}
-      <tr>
-        <td><a href="{{ url_for('recipes.recipe_details', recipe_id=recipe.id) }}">{{ recipe.recipe_title }}</a></td>
-        <td>{{ recipe.recipe_description }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    {% if public_recipes.count() > 0 %}
+      <h3>Most Popular Recipes</h3>
+      <div class="row">
+        {% for recipe in public_recipes %}
+        <div class="col-xs-6 col-md-3">
+          <tr>
+            <td>{{ recipe.recipe_title }}</td>
+            <a href="{{ url_for('recipes.recipe_details', recipe_id=recipe.id) }}" class="thumbnail">
+              <img src="{{ recipe.image_url }}" alt="{{ recipe.image_filename }}">
+            </a>
+          </tr>
+        </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  </div> <!-- /container -->
 </div>
 
 {% endblock %}
